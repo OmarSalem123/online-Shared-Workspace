@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1709943255280,
+      "tag": "0000_brainy_cloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1709950292664,
+      "tag": "0001_material_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1709951128402,
+      "tag": "0002_safe_scalphunter",
+      "breakpoints": true
+    }
+  ]
+}
