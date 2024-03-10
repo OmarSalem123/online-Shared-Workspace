@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import Logo from '../../../../public/icons/cypresslogo.svg';
-import Loader from '@/components/loader';
+import Loader from '@/components/global/loader';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { MailCheck } from 'lucide-react';
 import { FormSchema } from '@/lib/types';
