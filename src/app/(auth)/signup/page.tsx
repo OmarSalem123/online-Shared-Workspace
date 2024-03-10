@@ -74,7 +74,6 @@ const Signup = () => {
     const { error } = await actionSignUpUser({ email, password });
     if (error) {
       setSubmitError(error.message);
-      form.reset();
       return;
     }
     setConfirmation(true);
@@ -102,7 +101,7 @@ const Signup = () => {
         >
           <Image
             src={Logo}
-            alt="cypress Logo"
+            alt="Logo"
             width={50}
             height={50}
           />
@@ -110,7 +109,7 @@ const Signup = () => {
             className="font-semibold
           dark:text-white text-4xl first-letter:ml-2"
           >
-            cypress.
+            Rawaj
           </span>
         </Link>
         <FormDescription
