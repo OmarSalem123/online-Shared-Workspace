@@ -1,3 +1,4 @@
+import Sidebar from '@/components/Sidebar/sidebar';
 import React from 'react'
 
 interface LayoutProps {
@@ -7,8 +8,11 @@ interface LayoutProps {
 
 const Layout:React.FC<LayoutProps> = ({ children, params }) => {
   return (
-    <main className="flex over-hidden h-screen">
-        {children}
+    <main className="flex overflow-hidden h-screen w-screen">
+        <Sidebar params = {params}/>
+        <div className="dark:border-Neutrals-12/70 border-l-[1px] w-full realative overflow-scroll">
+          {children}
+        </div>
     </main>
   )
 }
