@@ -73,7 +73,8 @@ export const subscriptions = pgTable("subscriptions", {
 });
 
 export const collaborators = pgTable('collaborators', {
-    workspacesId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade'}),
+    id: uuid('id').defaultRandom().primaryKey().notNull(),
+    workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade'}),
     createdAt: timestamp('created_at', {
         withTimezone: true,
         mode: 'string',

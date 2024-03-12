@@ -49,7 +49,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({privateWorkspaces,
             </span>
         </div>
         {isOpen && (
-            <div className='origin-top-right absolute w-full rounded-md shadow-md z-50 h-[190px] bg-black/10 backdrop-blur-lg group overflow-hidden border-[1px] border-muted'>
+            <div className='origin-top-right absolute w-full rounded-md shadow-md z-50 h-auto bg-black/10 backdrop-blur-lg group overflow-hidden border-[1px] border-muted'>
                 <div className='rounded-md flex flex-col'>
                     <div className='!p-2'>{!!privateWorkspaces.length && (
                         <>
