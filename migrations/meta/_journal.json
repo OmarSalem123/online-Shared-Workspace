@@ -36,6 +36,13 @@
       "when": 1710205696920,
       "tag": "0004_early_dorian_gray",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1710238131383,
+      "tag": "0005_early_silvermane",
+      "breakpoints": true
     }
   ]
 }

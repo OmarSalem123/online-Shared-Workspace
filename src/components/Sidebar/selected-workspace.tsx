@@ -4,6 +4,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import logo from "../../../public/icons/cypresslogo.svg"
 
 interface SelectedWorkspaceProps {
   workspace: workspace;
@@ -15,7 +16,7 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
   onClick,
 }) => {
   const supabase = createClientComponentClient();
-  const [workspaceLogo, setWorkspaceLogo] = useState('/cypresslogo.svg');
+  const [workspaceLogo, setWorkspaceLogo] = useState(logo);
   useEffect(() => {
     if (workspace.logo) {
       const path = supabase.storage
