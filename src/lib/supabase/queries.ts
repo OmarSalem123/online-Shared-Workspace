@@ -135,3 +135,12 @@ export const getUsersFromSearch = async (email: string) => {
   return accounts;
 }
 
+export const updateFolder = async (folder: Partial<Folder>, folderId: string) => {
+  try{
+    await db.update(folders).set(folder).where(eq(folders.id, folderId));
+    return { data: null, error: null}
+  }catch(error){
+    console.log(error)
+    return { data: null, error: "Error"}
+  }
+};
