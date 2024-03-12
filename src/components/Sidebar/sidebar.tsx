@@ -46,7 +46,7 @@ const Sidebar:React.FC<SidebarProps> = async({ params, className }) => {
             <NativeNavigation myWorkspaceId={params.workspaceId} />
             <ScrollArea className='overflow-auto relative h-[450px]'>
               <div className='pinter-events-none w-full absolute h-20 bg-gradient-to-t from-background to-transparent z-40'>
-                <FoldersDropdownList workspaceFolders={workspaceFolderData} workspaceId={params.workspaceId} />
+                <FoldersDropdownList workspaceFolders={workspaceFolderData || []} workspaceId={params.workspaceId} />
               </div>
             </ScrollArea>
         </div>

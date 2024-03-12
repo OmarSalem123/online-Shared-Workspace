@@ -8,6 +8,7 @@ import { useSupabaseUser } from '@/lib/providers/supabase-user-provider';
 import { v4 } from 'uuid';
 import { createFolder } from '@/lib/supabase/queries';
 import { useToast } from '../ui/use-toast';
+import Dropdown from './Dropdown';
 import { Accordion } from '../ui/accordion';
 
 interface FoldersDropdownListPropos{
@@ -79,11 +80,24 @@ const FoldersDropdownList:React.FC<FoldersDropdownListPropos> = ({ workspaceFold
                 <PlusIcon size={16} onClick={addFolderHandler} className='group-hover/title:inline-block hidden cursor-pointer hover:dark:text-white'/>
             </TooltipComponent>
         </div>
-        <Accordion type="multiple" defaultValue={folderId || ''} className='pb-20'>
-            {folders.filter((folder)=>!folder.inTrash).map((folder) => (
-                <div key={folder.id}></div>
-            ))}
-        </Accordion>
+        <Accordion
+        type="multiple"
+        defaultValue={[folderId || '']}
+        className="pb-20"
+      >
+        {folders
+          .filter((folder) => !folder.inTrash)
+          .map((folder) => (
+            <Dropdown
+              key={folder.id}
+              title={folder.title}
+              listType="folder"
+              id={folder.id}
+              iconId={folder.iconId}
+              disabled={false}
+            />
+          ))}
+      </Accordion>
 
     </>
   )
