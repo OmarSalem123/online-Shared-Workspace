@@ -1,7 +1,7 @@
 'use server'
 import db from "./db"
-import { Folder, Subscription, User, workspace } from "./supabase.type";
-import { folders, users, workspaces } from "../../../migrations/schema";
+import { Folder, Subscription, User, workspace, File } from "./supabase.type";
+import { files, folders, users, workspaces } from "../../../migrations/schema";
 import { validate } from 'uuid';
 import { eq, notExists, and, ilike } from "drizzle-orm";
 import { collaborators } from "./schema";
@@ -142,5 +142,41 @@ export const updateFolder = async (folder: Partial<Folder>, folderId: string) =>
   }catch(error){
     console.log(error)
     return { data: null, error: "Error"}
+  }
+};
+
+export const createFile = async (file: File) => {
+  try{
+    await db.insert(files).values(file);
+    return { data: null, error: null};
+  }catch(error){
+    console.log(error);
+    return { data: null, error: 'Error'};
+  }
+};
+
+export const updateFile = async (file: Partial<File>, fileId: string) => {
+  try{
+    const response = await db.update(files).set(file).where(eq(files.id, fileId))
+    return { data: null, error: null};
+  }catch(error){
+    console.log(error)
+    return { data: null, error: 'Error'};
+  }
+};
+
+export const getFiles = async (folderId: string) => {
+  const isValid = validate(folderId);
+  if (!isValid) return { data: null, error: 'Error' };
+  try {
+    const results = (await db
+      .select()
+      .from(files)
+      .orderBy(files.createdAt)
+      .where(eq(files.folderId, folderId))) as File[] | [];
+    return { data: results, error: null };
+  } catch (error) {
+    console.log(error);
+    return { data: null, error: 'Error' };
   }
 };

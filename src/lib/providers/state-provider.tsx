@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import { File, Folder, workspace } from '../supabase/supabase.type';
 import { usePathname } from 'next/navigation';
-// import { getFiles } from '../supabase/queries';
+import { getFiles } from '../supabase/queries';
 
 export type appFoldersType = Folder & { files: File[] | [] };
 export type appWorkspacesType = workspace & {
@@ -199,31 +199,31 @@ const appReducer = (
           return workspace;
         }),
       };
-    // case 'ADD_FILE':
-    //   return {
-    //     ...state,
-    //     workspaces: state.workspaces.map((workspace) => {
-    //       if (workspace.id === action.payload.workspaceId) {
-    //         return {
-    //           ...workspace,
-    //           folders: workspace.folders.map((folder) => {
-    //             if (folder.id === action.payload.folderId) {
-    //               return {
-    //                 ...folder,
-    //                 files: [...folder.files, action.payload.file].sort(
-    //                   (a, b) =>
-    //                     new Date(a.createdAt).getTime() -
-    //                     new Date(b.createdAt).getTime()
-    //                 ),
-    //               };
-    //             }
-    //             return folder;
-    //           }),
-    //         };
-    //       }
-    //       return workspace;
-    //     }),
-    //   };
+    case 'ADD_FILE':
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return {
+                    ...folder,
+                    files: [...folder.files, action.payload.file].sort(
+                      (a, b) =>
+                        new Date(a.createdAt).getTime() -
+                        new Date(b.createdAt).getTime()
+                    ),
+                  };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
+      };
     case 'DELETE_FILE':
       return {
         ...state,
@@ -324,21 +324,21 @@ const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) => {
       }
   }, [pathname]);
 
-  // useEffect(() => {
-  //   if (!folderId || !workspaceId) return;
-  //   const fetchFiles = async () => {
-  //     const { error: filesError, data } = await getFiles(folderId);
-  //     if (filesError) {
-  //       console.log(filesError);
-  //     }
-  //     if (!data) return;
-  //     dispatch({
-  //       type: 'SET_FILES',
-  //       payload: { workspaceId, files: data, folderId },
-  //     });
-  //   };
-  //   fetchFiles();
-  // }, [folderId, workspaceId]);
+  useEffect(() => {
+    if (!folderId || !workspaceId) return;
+    const fetchFiles = async () => {
+      const { error: filesError, data } = await getFiles(folderId);
+      if (filesError) {
+        console.log(filesError);
+      }
+      if (!data) return;
+      dispatch({
+        type: 'SET_FILES',
+        payload: { workspaceId, files: data, folderId },
+      });
+    };
+    fetchFiles();
+  }, [folderId, workspaceId]);
 
   useEffect(() => {
     console.log('App State Changed', state);
