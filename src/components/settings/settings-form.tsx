@@ -10,7 +10,7 @@ import { Briefcase, Share, Lock, Plus } from 'lucide-react';
 import { Separator } from '@radix-ui/react-select';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { addCollaborators, updateWorkspace, removeCollaborators, deleteWorkspace } from '@/lib/supabase/queries';
+import { addCollaborators, updateWorkspace, removeCollaborators, deleteWorkspace, getCollaborators } from '@/lib/supabase/queries';
 import { v4 } from 'uuid';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import CollaboratorSearch from '../global/collaborator-search';
@@ -37,10 +37,16 @@ const SettingsForm = () => {
     //WIP payment portal
 
     //add & Remove Collaporators
+    const getCurrentCollaborators = async (workspaceId: string) => {
+    if (!workspaceId) return;
+    const fetchedCollaborators = await getCollaborators(workspaceId);
+    if (fetchedCollaborators) {
+        setCollaborators(fetchedCollaborators);
+    }
+};
     const addCollaborator = async (profile: User) => {
-        if(!workspaceId) return;
+        if (!workspaceId || collaborators.some(c => c.id === profile.id)) return; // Avoid adding duplicates
         //WIP Subscription
-
         await addCollaborators(collaborators, workspaceId)
         setCollaborators([...collaborators, profile]);
         router.refresh();
@@ -53,7 +59,6 @@ const SettingsForm = () => {
         await removeCollaborators([user], workspaceId);
         setCollaborators(collaborators.filter( c => c.id !== user.id));
     };
-
 
     //onChanges
     const workspaceNameChange = (e:React.ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +104,12 @@ const SettingsForm = () => {
     useEffect(() => {
         const showingWorkspace = state.workspaces.find((workspace) => workspace.id === workspaceId);
         if(showingWorkspace) setWorkspaceDetails(showingWorkspace)
-    }, [workspaceId, state])
+    }, [workspaceId, state]);
+    useEffect(() => {
+        if(!workspaceId) return;
+        getCurrentCollaborators(workspaceId);
+    }, [workspaceId]);
+    
   return (
     <div className='flex gap-4 flex-col'>
         <p className='flex items-center gap-2 mt-6'>

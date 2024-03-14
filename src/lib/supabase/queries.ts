@@ -1,6 +1,6 @@
 'use server'
 import db from "./db"
-import { Folder, Subscription, User, workspace, File } from "./supabase.type";
+import { Folder, Subscription, User, workspace, File, Collaborator } from "./supabase.type";
 import { files, folders, users, workspaces } from "../../../migrations/schema";
 import { validate } from 'uuid';
 import { eq, notExists, and, ilike } from "drizzle-orm";
@@ -185,7 +185,7 @@ export const updateWorkspace = async ( workspace: Partial<workspace>, workspaceI
   if(!workspaceId) return;
   try{
     const response = await db.update(workspaces).set(workspace).where(eq(workspaces.id, workspaceId));
-    return { data: null, error: null};
+    return { data: response, error: null};
   }catch(error){
     console.log(error)
     return { data: null, error: "Error"}
@@ -207,3 +207,69 @@ export const deleteWorkspace = async (workspaceId: string) => {
   if(!workspaceId) return;
   await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
 };
+
+export const getCollaborators = async (workspaceId: string) => {
+  const response = await db
+    .select()
+    .from(collaborators)
+    .where(eq(collaborators.workspaceId, workspaceId));
+  if (!response.length) return [];
+  const userInformation: Promise<User | undefined>[] = response.map(
+    async (user) => {
+      const exists = await db.query.users.findFirst({
+        where: (u, { eq }) => eq(u.id, user.userId),
+      });
+      return exists;
+    }
+  );
+  const resolvedUsers = await Promise.all(userInformation);
+  return resolvedUsers.filter(Boolean) as User[];
+};
+
+export const getWorkspaceDetails = async (workspaceId: string) => {
+  const isValid = validate(workspaceId);
+  if(!isValid) return {data: [], error: "Error"};
+  try{
+    const response = (await db.select().from(workspaces).where(eq(workspaces.id, workspaceId)).limit(1))as workspace[];
+    return {data: response, error: null};
+  }catch(error) {
+    console.log(error);
+    return {data: [], error: "Error"};
+  }
+}
+
+export const getFolderDetails = async (folderId: string) => {
+  const isValid = validate(folderId);
+  if(!isValid) return {data: [], error: "Error"};
+  try{
+    const response = (await db.select().from(folders).where(eq( folders.id, folderId)).limit(1)) as Folder[];
+    return { data: response, error: null};
+  }catch(error){
+    console.log(error);
+    return {data: [], error: "Error"}
+  }
+}
+
+export const getFileDetails = async(fileId: string) => {
+  const isValid = validate(fileId);
+  if(!isValid) return { data: [], error: "Error"};
+  try{
+    const response = (await db.select().from(files).where(eq(files.id, fileId)).limit(1)) as File[];
+    return {data: response, error: null};
+  }catch(error) {
+    console.log(error);
+    return {data: [], error: "Error"}
+  }
+}
+
+export const deleteFile = async (fileId: string) => {
+  const isValid = validate(fileId)
+  if(!isValid) return;
+  await db.delete(files).where(eq(files.id, fileId));
+}
+
+export const deleteFolder = async (folderId: string) => {
+  const isValid = validate(folderId)
+  if(!isValid) return;
+  await db.delete(folders).where(eq(folders.id, folderId));
+}

@@ -1,5 +1,5 @@
 import { InferSelectModel } from "drizzle-orm"
-import { customers, files, folders, prices, products, subscriptions, users, workspaces } from "../../../migrations/schema"
+import { collaborators, customers, files, folders, prices, products, subscriptions, users, workspaces } from "../../../migrations/schema"
 
 export type Json =
   | string
@@ -12,6 +12,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      collaborators: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborators_user_id_users_id_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborators_workspace_id_workspaces_id_fk"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       customers: {
         Row: {
           id: string
@@ -38,7 +74,7 @@ export type Database = {
       files: {
         Row: {
           banner_url: string | null
-          created_at: string | null
+          created_at: string
           data: string | null
           folder_id: string | null
           icon_id: string
@@ -50,7 +86,7 @@ export type Database = {
         }
         Insert: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           folder_id?: string | null
           icon_id: string
@@ -62,7 +98,7 @@ export type Database = {
         }
         Update: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           folder_id?: string | null
           icon_id?: string
@@ -92,7 +128,7 @@ export type Database = {
       folders: {
         Row: {
           banner_url: string | null
-          created_at: string | null
+          created_at: string
           data: string | null
           icon_id: string
           id: string
@@ -103,7 +139,7 @@ export type Database = {
         }
         Insert: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           icon_id: string
           id?: string
@@ -114,7 +150,7 @@ export type Database = {
         }
         Update: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           icon_id?: string
           id?: string
@@ -334,7 +370,7 @@ export type Database = {
       workspaces: {
         Row: {
           banner_url: string | null
-          created_at: string | null
+          created_at: string
           data: string | null
           icon_id: string
           id: string
@@ -345,7 +381,7 @@ export type Database = {
         }
         Insert: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           icon_id: string
           id?: string
@@ -356,7 +392,7 @@ export type Database = {
         }
         Update: {
           banner_url?: string | null
-          created_at?: string | null
+          created_at?: string
           data?: string | null
           icon_id?: string
           id?: string
@@ -474,12 +510,14 @@ export type Enums<
 
   export type workspace = InferSelectModel<typeof workspaces>;
   export type User = InferSelectModel<typeof users>;
+  export type Collaborator = InferSelectModel<typeof collaborators>;
   export type Folder = InferSelectModel<typeof folders>;
   export type File = InferSelectModel<typeof files>;
   export type Product = InferSelectModel<typeof products>;
   export type Price = InferSelectModel<typeof prices> & { products?: Product };
   export type Customer = InferSelectModel<typeof customers>;
   export type Subscription = InferSelectModel<typeof subscriptions> & { prices: Price};
+
   
   export type ProductWithPrice = Product & {
     prices?: Price[];
