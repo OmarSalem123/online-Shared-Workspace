@@ -18,7 +18,18 @@ import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Alert, AlertDescription } from '../ui/alert';
-
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
+  
 
 
 const SettingsForm = () => {
@@ -37,27 +48,23 @@ const SettingsForm = () => {
     //WIP payment portal
 
     //add & Remove Collaporators
-    const getCurrentCollaborators = async (workspaceId: string) => {
-    if (!workspaceId) return;
-    const fetchedCollaborators = await getCollaborators(workspaceId);
-    if (fetchedCollaborators) {
-        setCollaborators(fetchedCollaborators);
-    }
-};
     const addCollaborator = async (profile: User) => {
-        if (!workspaceId || collaborators.some(c => c.id === profile.id)) return; // Avoid adding duplicates
-        //WIP Subscription
-        await addCollaborators(collaborators, workspaceId)
+        if (!workspaceId) return;
+        //subs
+        await addCollaborators([profile], workspaceId);
         setCollaborators([...collaborators, profile]);
-        router.refresh();
-    }
+      };
+      
     const removeCollaborator = async (user: User) => {
-        if(!workspaceId) return;
-        if(collaborators.length === 1){
-            setPermissions('Private');
+        if (!workspaceId) return;
+        if (collaborators.length === 1) {
+            setPermissions('private');
         }
         await removeCollaborators([user], workspaceId);
-        setCollaborators(collaborators.filter( c => c.id !== user.id));
+        setCollaborators(
+            collaborators.filter((collaborator) => collaborator.id !== user.id)
+        );
+        router.refresh();
     };
 
     //onChanges
@@ -92,8 +99,21 @@ const SettingsForm = () => {
             setUploadingLogo(false);
         }
     };
+
+    const onPermissionsChange = (val: string) => {
+        if (val === 'private') {
+          setOpenAlertMessage(true);
+        } else setPermissions(val);
+    };
     //onClicks
- 
+    const onClickAlertConfirm = async () => {
+        if(!workspaceId) return;
+        if(collaborators.length > 0){
+            await removeCollaborators(collaborators, workspaceId);
+        }
+        setPermissions('private')
+        setOpenAlertMessage(false)
+    };
     //fetching Avatar details
     
     //get workspace details
@@ -105,11 +125,21 @@ const SettingsForm = () => {
         const showingWorkspace = state.workspaces.find((workspace) => workspace.id === workspaceId);
         if(showingWorkspace) setWorkspaceDetails(showingWorkspace)
     }, [workspaceId, state]);
+
     useEffect(() => {
-        if(!workspaceId) return;
-        getCurrentCollaborators(workspaceId);
-    }, [workspaceId]);
-    
+        if (!workspaceId) return;
+        const fetchCollaborators = async () => {
+          const response = await getCollaborators(workspaceId);
+          if (response.length) {
+            setPermissions('shared');
+            setCollaborators(response);
+          }else{
+            setPermissions('private');
+          }
+        };
+        fetchCollaborators();
+      }, [workspaceId]);
+        
   return (
     <div className='flex gap-4 flex-col'>
         <p className='flex items-center gap-2 mt-6'>
@@ -125,34 +155,46 @@ const SettingsForm = () => {
         </div>
         <>
             <Label htmlFor='permissions'>Permissions</Label>
-            <Select onValueChange={(val) => {setPermissions(val);}} defaultValue={permissions}>
-            <SelectTrigger className='w-full h-26 -mt-3'>
-                <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectGroup>
-                <SelectItem value='private'>
-                        <div className='p-2 flex gap-4 justify-center items-center'>
-                            <Lock />
-                            <article className='text-left flex flex-col'>
-                                <span>Private</span>
-                                <p>Your workspace is private to you. You can choose to share it later</p>
-                            </article>
-                        </div>
-                    </SelectItem>
-                    <SelectItem value='shared'>
-                        <div className='p-2 flex gap-4 justify-center items-center'>
-                            <Share />
-                            <article className='text-left flex flex-col'>
-                                <span>Shared</span>
-                                <p>You can invite collaborators.</p>
-                            </article>
-                        </div>
-                    </SelectItem>
-                </SelectGroup>
-            </SelectContent>
+            <Select
+          onValueChange={onPermissionsChange}
+          value={permissions}
+        >
+          <SelectTrigger className="w-full h-26 -mt-3">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="private">
+                <div
+                  className="p-2
+                  flex
+                  gap-4
+                  justify-center
+                  items-center
+                "
+                >
+                  <Lock />
+                  <article className="text-left flex flex-col">
+                    <span>Private</span>
+                    <p>
+                      Your workspace is private to you. You can choose to share
+                      it later.
+                    </p>
+                  </article>
+                </div>
+              </SelectItem>
+              <SelectItem value="shared">
+                <div className="p-2 flex gap-4 justify-center items-center">
+                  <Share></Share>
+                  <article className="text-left flex flex-col">
+                    <span>Shared</span>
+                    <span>You can invite collaborators.</span>
+                  </article>
+                </div>
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
         </Select>
-        </>
         {permissions === 'shared' && (
             <div>
                 <CollaboratorSearch existingCollaborators={collaborators} getCollaborator={(user) => {addCollaborator(user);}}>
@@ -205,6 +247,17 @@ const SettingsForm = () => {
                 router.replace('/dashboard');
              }}> Delete Workspace </Button>
         </Alert>
+        </>
+        <AlertDialog open={openAlertMessage}>
+             <AlertDialogContent>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDescription>Changing a Shared workspace to a Private workspace will remova all collaborators permanantly.</AlertDescription>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => {setOpenAlertMessage(false)}}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={onClickAlertConfirm}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+             </AlertDialogContent>
+        </AlertDialog>
     </div>
   )
 }
